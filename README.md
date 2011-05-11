@@ -1,4 +1,8 @@
-# Simple parameter holder that serializes to db backend
+uSettings
+=========
+
+Simple parameter holder that serializes to db backend
+-----------------------------------------------------
 
 Key/Value holder with a database backend. Essentially this is a parameter
 holder that serializes to a database.
