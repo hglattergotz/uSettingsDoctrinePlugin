@@ -40,6 +40,15 @@ class uSettings
   public function __construct($tableName = 'Settings')
   {
     $this->tableName = $tableName;
+
+    // This plugin uses field names in its table that are reseved words in
+    // mysql. "Key", "Value" and "Group".
+    // The following code causes Doctrine to quote identifier names (field names)
+    // resolving the issue.
+    // The documentation states that "It can cause more problems than it fixes"
+    // so the code is placed here in order to limit this attribute to only the
+    // scripts that use this class.
+    Doctrine_Manager::getInstance()->setAttribute(Doctrine_Core::ATTR_QUOTE_IDENTIFIER, true);
   }
 
   /**
@@ -215,7 +224,7 @@ class uSettings
   {
     try
     {
-      Doctrine::getTable($this->tableName)->newSetting($key, $value, $type, $group);
+      Doctrine::getTable($this->tableName)->newSetting($key, $this->cast($value, self::STRING), $type, $group);
     }
     catch (Exception $e)
     {
