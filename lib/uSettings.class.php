@@ -73,9 +73,9 @@ class uSettings
    */
   public function get($key, $group, $throwException = true)
   {
-    Doctrine::getTable($this->tableName)->getByKeyGroup($key, $group);
+    $setting = Doctrine::getTable($this->tableName)->getByKeyGroup($key, $group);
 
-    if (null === $r)
+    if (null === $setting)
     {
       if ($throwException)
       {
@@ -89,7 +89,7 @@ class uSettings
     }
     else
     {
-      return $this->cast($r->getValue(), $r->getType());
+      return $this->cast($setting->getValue(), $setting->getType());
     }
   }
 
@@ -109,7 +109,7 @@ class uSettings
   {
     try
     {
-      Doctrine::getTable($this->tableName)->setByKeyGroup($key, $value, $group);
+      Doctrine::getTable($this->tableName)->setByKeyGroup($key, $this->cast($value, self::STRING), $group);
     }
     catch (Exception $e)
     {
@@ -141,16 +141,15 @@ class uSettings
   {
     try
     {
+      $settings = Doctrine::getTable($this->tableName)->getAllGroup($group);
+      $results = array();
 
-      $r = Doctrine::getTable($this->tableName)->getAllGroup($group);
-      $ar = array();
-
-      foreach ($r as $v)
+      foreach ($settings as $setting)
       {
-        $ar[$v->getKey()] = $this->cast($v->getValue(), $v->getType());
+        $results[$setting->getKey()] = $this->cast($setting->getValue(), $setting->getType());
       }
 
-      return $ar;
+      return $results;
     }
     catch (Exception $e)
     {
@@ -267,6 +266,20 @@ class uSettings
   }
 
   /**
+   * Check for existence of a setting.
+   * 
+   * @param string $key   The key to check for
+   * @param string $group The group to check for
+   * @return bolean
+   */
+  public function hasSetting($key, $group)
+  {
+    $setting = Doctrine::getTable($this->tableName)->getByKeyGroup($key, $group);
+
+    return (null !== $setting);
+  }
+  
+  /**
    * Remove the entire group from the database.
    *
    * @param string $group           The name of the group
@@ -357,7 +370,14 @@ class uSettings
         return doubleval($value);
         break;
       case self::STRING:
-        return strval($value);
+        if (is_bool($value))
+        {
+          return $this->booltostr($value);
+        }
+        else
+        {
+          return strval($value);
+        }
         break;
       default:
         throw new Exception('Unsupported type \''.$type.'\'');
@@ -374,9 +394,9 @@ class uSettings
    */
   protected function strtobool($value)
   {
-    $v = strtolower($value);
+    $val = strtolower($value);
 
-    if ($v == 'yes' || $v == 'true' || $v == 'on' || $v == '1' || $v == 1)
+    if ($val == 'yes' || $val == 'true' || $val == 'on' || $val == '1' || $val == 1)
     {
       return true;
     }
@@ -384,5 +404,16 @@ class uSettings
     {
       return false;
     }
+  }
+
+  /**
+   * Convert a boolean to a string representation.
+   * 
+   * @param boolean $value
+   * @return string 
+   */
+  protected function booltostr($value)
+  {
+    return ($value) ? 'true' : 'false';
   }
 }
