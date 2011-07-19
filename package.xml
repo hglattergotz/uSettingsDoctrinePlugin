@@ -40,7 +40,6 @@
       </dir>
       <file name="LICENSE" role="data" />
       <file name="README.md" role="data" />
-      <file name="package.xml" role="data" />
     </dir>
   </contents>
   <dependencies>
