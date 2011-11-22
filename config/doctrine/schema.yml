@@ -1,5 +1,4 @@
 Settings:
-  connection: doctrine
   tableName: settings
   columns:
     id:
