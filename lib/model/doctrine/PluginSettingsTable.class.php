@@ -108,6 +108,6 @@ class PluginSettingsTable extends Doctrine_Table
   public function optimize()
   {
     $sql = "OPTIMIZE TABLE `settings`;";
-    Doctrine_Manager::getInstance()->getCurrentConnection()->getDbh()->query($sql);
+    Doctrine_Manager::getInstance()->getConnectionForComponent('PluginSettings')->getDbh()->query($sql);
   }
 }
